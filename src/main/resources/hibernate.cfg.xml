@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/educationalManagementSystem</property>
+        <property name="hibernate.connection.username">Maktab</property>
+        <property name="hibernate.connection.password">Maktab123</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- لیست کلاس‌های موجودیت -->
+        <mapping class="org.example.entity.Student"/>
+        <mapping class="org.example.entity.Teacher"/>
+        <mapping class="org.example.entity.Admin"/>
+        <mapping class="org.example.entity.Course"/>
+        <mapping class="org.example.entity.Enrollment"/>
+    </session-factory>
+</hibernate-configuration>

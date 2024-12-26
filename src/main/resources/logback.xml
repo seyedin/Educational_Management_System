@@ -1,0 +1,30 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="ERROR">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <logger name="org.hibernate" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.SQL" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.type" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+</configuration>
