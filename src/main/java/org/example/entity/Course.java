@@ -47,6 +47,7 @@ public class Course {
 
     @ManyToOne
     @JoinColumn(name = "teacher_id", nullable = false)
+    @ToString.Exclude // جلوگیری از تکرار بی‌نهایت
     private Teacher teacher; // Foreign Key
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)

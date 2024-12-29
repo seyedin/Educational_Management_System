@@ -91,6 +91,13 @@ public class CourseRepositoryImpl implements CourseRepository {
         }
     }
 
+    /**
+     * Finds students enrolled in a course by the course ID.
+     *
+     * @param courseId the ID of the course
+     * @return a list of students enrolled in the course
+     * @throws CustomException if there is an error while finding the students
+     */
     @Override
     public List<Student> findStudentsByCourseId(Long courseId) throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
@@ -100,6 +107,14 @@ public class CourseRepositoryImpl implements CourseRepository {
         }
     }
 
+    /**
+     * Finds a course entity by its ID.
+     *
+     * @param courseId the ID of the course entity
+     * @param session  the session object
+     * @return the course entity, or null if not found
+     * @throws CustomException if there is an error while finding the course
+     */
     @Override
     public Course findById(Long courseId, Session session) throws CustomException {
         try {
@@ -109,6 +124,13 @@ public class CourseRepositoryImpl implements CourseRepository {
         }
     }
 
+    /**
+     * Updates a course entity in the database.
+     *
+     * @param course  the course entity to update
+     * @param session the session object
+     * @throws CustomException if there is an error while updating the course
+     */
     @Override
     public void update(Course course, Session session) throws CustomException {
         try {

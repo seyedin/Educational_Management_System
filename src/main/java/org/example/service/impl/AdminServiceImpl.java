@@ -84,7 +84,6 @@ public class AdminServiceImpl implements AdminService {
      * @param student the student to be registered
      * @throws CustomException if there is an error while registering the student
      */
-
     @Override
     public void registerStudent(Student student) throws CustomException {
         Set<ConstraintViolation<Student>> violations = validator.validate(student);
@@ -118,8 +117,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<Student> viewStudents() throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
-            return session.createQuery("from Student", Student.class).list();
+            return session.createQuery("select distinct s from Student s left join fetch s.enrollments", Student.class).list();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CustomException("Failed to view students", ErrorCode.VIEW_STUDENTS_FAILED.getCode());
         }
     }
@@ -163,12 +163,21 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<Teacher> viewTeachers() throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
-            return session.createQuery("from Teacher", Teacher.class).list();
+            return session.createQuery("select distinct t from Teacher t left join fetch t.courses", Teacher.class).list();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CustomException("Failed to view teachers", ErrorCode.VIEW_TEACHERS_FAILED.getCode());
         }
     }
 
+
+    /**
+     * Finds a teacher by their name. *
+     *
+     * @param teacherName the name of the teacher
+     * @return the teacher entity
+     * @throws CustomException if there is an error while finding the teacher
+     */
     @Override
     public Teacher findTeacherByName(String teacherName) throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
@@ -349,6 +358,13 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    /**
+     * Assigns a course to a teacher.
+     *
+     * @param courseId  the ID of the course
+     * @param teacherId the ID of the teacher
+     * @throws CustomException if there is an error while assigning the course to the teacher
+     */
     @Override
     public void assignCourseToTeacher(Long courseId, Long teacherId) throws CustomException {
         Transaction transaction = null;

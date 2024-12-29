@@ -133,6 +133,13 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
+    /**
+     * Finds a student by username.
+     *
+     * @param username the username of the student
+     * @return the student entity, or null if not found
+     * @throws CustomException if there is an error while finding the student
+     */
     @Override
     public Student findByName(String username) throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {

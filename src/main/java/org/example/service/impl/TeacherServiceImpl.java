@@ -31,7 +31,7 @@ public class TeacherServiceImpl implements TeacherService {
         Transaction transaction = null;
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            teacherRepository.save(teacher, session); // پاس دادن جلسه
+            teacherRepository.save(teacher, session);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -90,7 +90,6 @@ public class TeacherServiceImpl implements TeacherService {
             throw new CustomException("Failed to find teacher by name", ErrorCode.TEACHER_NOT_FOUND.getCode(), e);
         }
     }
-
 
     /**
      * Updates a teacher entity in the database.
@@ -173,6 +172,13 @@ public class TeacherServiceImpl implements TeacherService {
         }
     }
 
+    /**
+     * Changes the password of a teacher.
+     *
+     * @param teacherId   the ID of the teacher
+     * @param newPassword the new password to set
+     * @throws CustomException if there is an error while changing the password
+     */
     @Override
     public void changePassword(Long teacherId, String newPassword) throws CustomException {
         Transaction transaction = null;

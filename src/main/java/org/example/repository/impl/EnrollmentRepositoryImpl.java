@@ -19,9 +19,10 @@ import java.util.Map;
 public class EnrollmentRepositoryImpl implements EnrollmentRepository {
 
     /**
-     * Saves an enrollment entity to the database.
+     * * Saves an enrollment entity to the database.
      *
      * @param enrollment the enrollment entity to save
+     * @param session the Hibernate session
      * @throws CustomException if there is an error while saving the enrollment
      */
     @Override
@@ -115,6 +116,14 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         }
     }
 
+    /**
+     * Records grades for students in a course.
+     *
+     * @param courseId the ID of the course
+     * @param grades   a map of student IDs and their corresponding grades
+     * @param session  the Hibernate session
+     * @throws CustomException if there is an error while recording grades
+     */
     @Override
     public void recordGrades(Long courseId, Map<Long, Double> grades, Session session) throws CustomException {
         try {
@@ -131,10 +140,20 @@ public class EnrollmentRepositoryImpl implements EnrollmentRepository {
         }
     }
 
+    /**
+     * Finds enrollments by course ID.
+     *
+     * @param courseId the ID of the course
+     * @param session  the Hibernate session
+     * @return a list of enrollments for the course
+     * @throws CustomException if there is an error while finding the enrollments
+     */
     @Override
     public List<Enrollment> findEnrollmentsByCourseId(Long courseId, Session session) throws CustomException {
         try {
-            return session.createQuery("FROM Enrollment WHERE course.id = :courseId", Enrollment.class).setParameter("courseId", courseId).list();
+            return session.createQuery("FROM Enrollment WHERE course.id = :courseId", Enrollment.class)
+                    .setParameter("courseId", courseId)
+                    .list();
         } catch (Exception e) {
             throw new CustomException("Failed to retrieve enrollments for course", ErrorCode.RETRIEVE_ENROLLMENTS_FAILED.getCode(), e);
         }

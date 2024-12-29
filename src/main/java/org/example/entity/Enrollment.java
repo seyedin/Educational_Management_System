@@ -1,11 +1,11 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -18,6 +18,7 @@ public class Enrollment {
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @ToString.Exclude
     private Student student; // Foreign Key
 
     @ManyToOne

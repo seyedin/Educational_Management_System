@@ -18,6 +18,7 @@ public class StudentRepositoryImpl implements StudentRepository {
      * Saves a student entity to the database.
      *
      * @param student the student entity to save
+     * @param session the Hibernate session
      * @throws CustomException if there is an error while saving the student
      */
     @Override
@@ -28,7 +29,6 @@ public class StudentRepositoryImpl implements StudentRepository {
             throw new CustomException("Failed to save student", ErrorCode.REGISTER_STUDENT_FAILED.getCode(), e);
         }
     }
-
 
     /**
      * Finds a student entity by its ID.
@@ -65,6 +65,7 @@ public class StudentRepositoryImpl implements StudentRepository {
      * Updates a student entity in the database.
      *
      * @param student the student entity to update
+     * @param session the Hibernate session
      * @throws CustomException if there is an error while updating the student
      */
     @Override

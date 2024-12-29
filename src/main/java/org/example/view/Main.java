@@ -287,7 +287,7 @@ public class Main {
             System.out.println("An error occurred while viewing students: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
             System.out.println("Please try again.");
         } catch (Exception e) {
-            //     System.out.println("An unexpected error occurred while viewing students: " + e.getMessage());
+            System.out.println("An unexpected error occurred while viewing students: " + e.getMessage());
             System.out.println("Please try again.");
         }
     }

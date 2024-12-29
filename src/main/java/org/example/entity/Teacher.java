@@ -5,14 +5,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -72,6 +72,7 @@ public class Teacher {
     private String personnelCode;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude // جلوگیری از تکرار بی‌نهایت
     private List<Course> courses; // List of courses taught by the teacher
 
     public enum DegreeEnum {BACHELOR, MASTER, DOCTORATE}

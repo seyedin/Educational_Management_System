@@ -19,6 +19,7 @@ public class TeacherRepositoryImpl implements TeacherRepository {
      * Saves a teacher entity to the database.
      *
      * @param teacher the teacher entity to save
+     * @param session the Hibernate session
      * @throws CustomException if there is an error while saving the teacher
      */
     @Override
@@ -110,6 +111,13 @@ public class TeacherRepositoryImpl implements TeacherRepository {
         }
     }
 
+    /**
+     * Finds courses taught by a teacher based on the teacher's ID.
+     *
+     * @param teacherId the ID of the teacher
+     * @return a list of courses taught by the teacher
+     * @throws CustomException if there is an error while finding the courses
+     */
     @Override
     public List<Course> findCoursesByTeacherId(Long teacherId) throws CustomException {
         try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
@@ -142,7 +150,6 @@ public class TeacherRepositoryImpl implements TeacherRepository {
             throw new CustomException("Failed to change teacher's password", ErrorCode.UPDATE_TEACHER_FAILED.getCode(), e);
         }
     }
-
 
     /**
      * Retrieves the profile of a teacher by their ID.

@@ -59,6 +59,11 @@ public enum ErrorCode {
         this.code = code;
     }
 
+    /**
+     * Gets the error code.
+     *
+     * @return the error code
+     */
     public int getCode() {
         return code;
     }
