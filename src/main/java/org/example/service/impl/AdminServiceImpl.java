@@ -256,7 +256,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void createCourse(Course course) throws CustomException {
         Transaction transaction = null;
-        Session session = null; // تغییر: تعریف session در خارج از بلوک try-with-resources
+        Session session = null;
         try {
             session = SessionFactoryInstance.sessionFactory.openSession();
             transaction = session.beginTransaction();
@@ -279,22 +279,24 @@ public class AdminServiceImpl implements AdminService {
 
             // اختصاص معلم به دوره و مقداردهی `teacherName`
             course.setTeacher(teacher);
-            course.setTeacherName(teacher.getLastName()); // تغییر: تنظیم نام معلم
+            course.setTeacherName(teacher.getLastName());
 
             session.persist(course);
             transaction.commit();
         } catch (CustomException e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
                 transaction.rollback();
             }
-            throw e;
+            // نمایش پیام خطا و بازگشت به منوی ادمین
+            System.out.println("An error occurred while creating the course: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
+            return;
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
                 transaction.rollback();
             }
             throw new CustomException("Failed to create course", ErrorCode.CREATE_COURSE_FAILED.getCode(), e);
         } finally {
-            if (session != null && session.isOpen()) {
+            if (session != null) {
                 session.close();
             }
         }

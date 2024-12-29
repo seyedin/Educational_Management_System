@@ -427,12 +427,10 @@ public class Main {
             System.out.println("Course created successfully.");
         } catch (CustomException e) {
             System.out.println("An error occurred while creating the course: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
-            e.printStackTrace();
-            System.out.println("Please try again.");
+            return; // بازگشت به منوی ادمین بدون بستن برنامه
         } catch (Exception e) {
             System.out.println("An unexpected error occurred while creating the course: " + e.getMessage());
-            e.printStackTrace();
-            System.out.println("Please try again.");
+            return; // بازگشت به منوی ادمین بدون بستن برنامه
         }
     }
 
