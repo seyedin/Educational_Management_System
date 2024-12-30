@@ -28,8 +28,9 @@ public class Main {
     public static void main(String[] args) {
         initializeAdmins(); // Initialize predefined admins
         Scanner scanner = new Scanner(System.in);
+        boolean running = true;
 
-        while (true) {
+        while (running) {
             try {
                 System.out.println("Welcome to the Educational Management System");
                 System.out.println("1. Admin");
@@ -38,21 +39,21 @@ public class Main {
                 System.out.println("4. Exit");
                 System.out.print("Please select your role: ");
                 int role = scanner.nextInt();
-                scanner.nextLine(); // Clear the buffer
+                scanner.nextLine();
 
                 switch (role) {
                     case 1:
-                        selectAdmin(scanner); // 1-1: Admin selection menu
+                        selectAdmin(scanner);
                         break;
                     case 2:
-                        teacherLogin(scanner); // 3-1: Teacher menu
+                        teacherLogin(scanner);
                         break;
                     case 3:
-                        studentLogin(scanner); // 2-1: Student menu
+                        studentLogin(scanner);
                         break;
                     case 4:
                         System.out.println("Exiting the system. Goodbye!");
-                        System.exit(0);
+                        running = false;
                         break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
@@ -170,45 +171,45 @@ public class Main {
         while (true) {
             try {
                 System.out.println("Admin Menu");
-                System.out.println("1. Register Student (1-4-1)");
-                System.out.println("2. View List of Students (1-4-2)");
-                System.out.println("3. Register Teacher (1-2-3)");
-                System.out.println("4. View List of Teachers (1-2-1)");
-                System.out.println("5. Delete Teacher (1-2-2)");
-                System.out.println("6. Create Course (1-3-3)");
-                System.out.println("7. Edit Course (1-3-1)");
-                System.out.println("8. Delete Course (1-3-2)");
-                System.out.println("9. View List of Courses (1-3)");
+                System.out.println("1. Register Student ");
+                System.out.println("2. View List of Students ");
+                System.out.println("3. Register Teacher ");
+                System.out.println("4. View List of Teachers ");
+                System.out.println("5. Delete Teacher ");
+                System.out.println("6. Create Course ");
+                System.out.println("7. Edit Course ");
+                System.out.println("8. Delete Course ");
+                System.out.println("9. View List of Courses ");
                 System.out.println("10. Assign Course to Teacher");
                 System.out.println("11. Back to Main Menu");
                 System.out.print("Please select an option: ");
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Clear the buffer
+                scanner.nextLine();
 
                 switch (choice) {
                     case 1:
-                        registerStudent(scanner); // 1-4-1: Register student
+                        registerStudent(scanner);
                         break;
                     case 2:
-                        viewStudents(); // 1-4-2: View students
+                        viewStudents();
                         break;
                     case 3:
-                        registerTeacher(scanner); // 1-2-3: Register teacher
+                        registerTeacher(scanner);
                         break;
                     case 4:
-                        viewTeachers(); // 1-2-1: View teachers
+                        viewTeachers();
                         break;
                     case 5:
-                        deleteTeacher(scanner); // 1-2-2: Delete teacher
+                        deleteTeacher(scanner);
                         break;
                     case 6:
-                        createCourse(scanner); // 1-3-3: Create course
+                        createCourse(scanner);
                         break;
                     case 7:
-                        editCourse(scanner); // 1-3-1: Edit course
+                        editCourse(scanner);
                         break;
                     case 8:
-                        deleteCourse(scanner); // 1-3-2: Delete course
+                        deleteCourse(scanner);
                         break;
                     case 9:
                         viewCourses(scanner);
@@ -581,11 +582,11 @@ public class Main {
         while (true) {
             try {
                 System.out.println("Teacher Menu");
-                System.out.println("1. View Assigned Courses (3-8)");
-                System.out.println("2. View Enrolled Students (3-7)");
-                System.out.println("3. Record Grades (3-4)");
-                System.out.println("4. View Course Capacities (3-6)");
-                System.out.println("5. View Course Start Dates (3-5)");
+                System.out.println("1. View Assigned Courses ");
+                System.out.println("2. View Enrolled Students ");
+                System.out.println("3. Record Grades ");
+                System.out.println("4. View Course Capacities ");
+                System.out.println("5. View Course Start Dates ");
                 System.out.println("6. View Teacher Profile");
                 System.out.println("7. Change Password");
                 System.out.println("8. View Grades");
@@ -843,9 +844,9 @@ public class Main {
     private static void teacherLogin(Scanner scanner) {
         try {
             System.out.println("Teacher Login");
-            System.out.print("Username(Personal Number): ");
+            System.out.print("Username(Personal Number, Personnel code must be 5 digits): ");
             String username = scanner.next();
-            System.out.print("Password(National Code): ");
+            System.out.print("Password(National Code, National code must be 10 digits): ");
             String password = scanner.next();
             boolean authenticated = teacherService.authenticate(username, password);
             if (authenticated) {
