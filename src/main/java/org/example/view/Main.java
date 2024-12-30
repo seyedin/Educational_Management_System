@@ -94,7 +94,7 @@ public class Main {
                 case 1:
                 case 2:
                 case 3:
-                    adminLogin(scanner, adminChoice); // 1-2: Admin login
+                    adminLogin(scanner, adminChoice);
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
