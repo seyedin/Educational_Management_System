@@ -148,4 +148,27 @@ public class CourseServiceImpl implements CourseService {
             throw new CustomException("Failed to retrieve enrolled students", ErrorCode.RETRIEVE_STUDENTS_FAILED.getCode(), e);
         }
     }
+
+    /**
+     * Finds all available courses that have not yet started or are starting today and have available capacity.
+     *
+     * This method retrieves the list of courses where the start date is today or later and the number of enrolled students
+     * is less than the course capacity.
+     *
+     * @return a list of available courses
+     * @throws CustomException if there is an error while retrieving the courses
+     */
+    @Override
+    public List<Course> findAvailableCourses() throws CustomException {
+        try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
+            return session.createQuery(
+                    "FROM Course c WHERE c.startDate >= CURRENT_DATE AND c.capacity > (SELECT COUNT(e) FROM Enrollment e WHERE e.course = c)",
+                    Course.class
+            ).list();
+        } catch (Exception e) {
+            e.printStackTrace();  // Print stack trace for debugging
+            throw new CustomException("Failed to retrieve available courses", ErrorCode.RETRIEVE_COURSES_FAILED.getCode(), e);
+        }
+    }
+
 }

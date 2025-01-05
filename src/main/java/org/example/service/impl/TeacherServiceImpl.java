@@ -1,6 +1,8 @@
 package org.example.service.impl;
 
 import org.example.entity.Course;
+import org.example.entity.Enrollment;
+import org.example.entity.Student;
 import org.example.entity.Teacher;
 import org.example.enums.ErrorCode;
 import org.example.exception.CustomException;
@@ -11,7 +13,9 @@ import org.example.util.SessionFactoryInstance;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of the TeacherService interface.
@@ -191,6 +195,72 @@ public class TeacherServiceImpl implements TeacherService {
                 transaction.rollback();
             }
             throw new CustomException("Failed to change teacher's password", ErrorCode.UPDATE_TEACHER_FAILED.getCode(), e);
+        }
+    }
+
+    /**
+     * Displays the grades for students in the courses assigned to the current teacher.
+     * This method retrieves the list of courses assigned to the teacher and displays the grades
+     * of the students enrolled in those courses.
+     *
+     * @param teacherId the ID of the teacher
+     * @throws CustomException if there is an error while retrieving the grades
+     */
+    @Override
+    public void viewGrades(Long teacherId) throws CustomException {
+        try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
+            session.beginTransaction();
+            Teacher teacher = session.get(Teacher.class, teacherId);
+            if (teacher == null) {
+                throw new CustomException("Teacher not found", ErrorCode.TEACHER_NOT_FOUND.getCode());
+            }
+
+            List<Course> assignedCourses = teacherRepository.findCoursesByTeacherId(teacherId);
+            if (assignedCourses.isEmpty()) {
+                System.out.println("No assigned courses found.");
+                return;
+            }
+
+            for (Course course : assignedCourses) {
+                System.out.println("Course: " + course.getCourseName());
+                List<Enrollment> enrollments = session.createQuery("FROM Enrollment WHERE course.id = :courseId", Enrollment.class)
+                        .setParameter("courseId", course.getId())
+                        .list();
+
+                if (enrollments.isEmpty()) {
+                    System.out.println("No students enrolled.");
+                } else {
+                    for (Enrollment enrollment : enrollments) {
+                        System.out.println("Student: " + enrollment.getStudent().getFirstName() + " " + enrollment.getStudent().getLastName() + " - Grade: " + enrollment.getGrade());
+                    }
+                }
+                System.out.println("-----");
+            }
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            throw new CustomException("Failed to view grades", ErrorCode.VIEW_GRADES_FAILED.getCode(), e);
+        }
+    }
+
+    @Override
+    public List<Student> viewEnrolledStudents(Long courseId) throws CustomException {
+        try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
+            session.beginTransaction();
+            List<Enrollment> enrollments = session.createQuery("FROM Enrollment WHERE course.id = :courseId", Enrollment.class)
+                    .setParameter("courseId", courseId)
+                    .list();
+            if (enrollments.isEmpty()) {
+                return new ArrayList<>(); // هیچ دانشجویی ثبت‌نام نشده است
+            } else {
+                List<Student> students = enrollments.stream()
+                        .map(Enrollment::getStudent)
+                        .collect(Collectors.toList());
+                session.getTransaction().commit();
+                return students;
+            }
+        } catch (Exception e) {
+            throw new CustomException("Failed to retrieve enrolled students", ErrorCode.RETRIEVE_ENROLLMENTS_FAILED.getCode(), e);
         }
     }
 }

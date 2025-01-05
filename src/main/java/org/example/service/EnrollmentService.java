@@ -21,4 +21,6 @@ public interface EnrollmentService {
     void recordGrades(Long courseId, Map<Long, Double> grades) throws CustomException;
 
     List<Enrollment> findEnrollmentsByCourseId(Long courseId) throws CustomException;
+
+    List<Enrollment> findEnrollmentsByStudentId(Long studentId) throws CustomException;
 }

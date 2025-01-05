@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
@@ -41,7 +42,8 @@ public class Course {
     private String teacherName;
 
     @NotNull
-    @PastOrPresent(message = "Start date must be in the past or present")
+   // @PastOrPresent(message = "Start date must be in the past or present")
+    @FutureOrPresent(message = "Start date must be in the present or future")
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 

@@ -20,4 +20,6 @@ public interface CourseService {
     boolean authenticate(Long courseId) throws CustomException;
 
     List<Student> getEnrolledStudents(Long courseId) throws CustomException;
+
+    List<Course> findAvailableCourses() throws CustomException;
 }

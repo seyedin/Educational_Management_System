@@ -357,9 +357,9 @@ public class Main {
      * Displays the list of teachers.
      */
     private static void viewTeachers() {
-        try {// 1-2-1
+        try {
             System.out.println("View Teachers");
-            List<Teacher> teachers = adminService.viewTeachers(); // Use adminService to get teachers
+            List<Teacher> teachers = adminService.viewTeachers();
             for (Teacher teacher : teachers) {
                 System.out.println(teacher);
             }
@@ -371,6 +371,7 @@ public class Main {
             System.out.println("Please try again.");
         }
     }
+
 
     /**
      * Deletes a teacher based on their ID.

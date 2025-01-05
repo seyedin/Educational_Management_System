@@ -5,6 +5,9 @@ import org.example.enums.ErrorCode;
 import org.example.exception.CustomException;
 import org.example.service.*;
 import org.example.service.impl.*;
+import org.example.util.SessionFactoryInstance;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -428,10 +431,8 @@ public class Main {
             System.out.println("Course created successfully.");
         } catch (CustomException e) {
             System.out.println("An error occurred while creating the course: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
-            return; // بازگشت به منوی ادمین بدون بستن برنامه
         } catch (Exception e) {
             System.out.println("An unexpected error occurred while creating the course: " + e.getMessage());
-            return; // بازگشت به منوی ادمین بدون بستن برنامه
         }
     }
 
@@ -682,7 +683,8 @@ public class Main {
             List<Enrollment> enrollments = enrollmentService.findAllEnrollments();
             for (Enrollment enrollment : enrollments) {
                 if (enrollment.getCourse().getId().equals(course.getId())) {
-                    System.out.println(enrollment.getStudent());
+                    Student student = enrollment.getStudent();
+                    System.out.println("Student(id=" + student.getId() + ", firstName=" + student.getFirstName() + ", lastName=" + student.getLastName() + ")");
                 }
             }
         } catch (CustomException e) {
@@ -697,11 +699,17 @@ public class Main {
     /**
      * Records grades for students in a specific course.
      *
+     * This method prompts the user to enter the course ID and the student IDs along with their grades.
+     * It updates the grades of the students in the specified course in the database.
+     * If an error occurs during the process, the transaction is rolled back.
+     *
      * @param scanner the input scanner
      */
     private static void recordGrades(Scanner scanner) {
         System.out.println("Record Grades");
-        try {
+        Transaction transaction = null;
+        try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             System.out.print("Course ID: ");
             Long courseId = scanner.nextLong();
             scanner.nextLine(); // Clear the buffer
@@ -716,11 +724,33 @@ public class Main {
                 grades.put(studentId, grade);
             }
 
-            enrollmentService.recordGrades(courseId, grades); // استفاده از سرویس صحیح
+            for (Map.Entry<Long, Double> entry : grades.entrySet()) {
+                Long studentId = entry.getKey();
+                Double grade = entry.getValue();
+
+                Enrollment enrollment = session.createQuery("FROM Enrollment WHERE course.id = :courseId AND student.id = :studentId", Enrollment.class)
+                        .setParameter("courseId", courseId)
+                        .setParameter("studentId", studentId)
+                        .uniqueResult();
+
+                if (enrollment != null) {
+                    enrollment.setGrade(grade);
+                    session.update(enrollment);
+                }
+            }
+
+            transaction.commit();
             System.out.println("Grades recorded successfully.");
         } catch (CustomException e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
             System.out.println("An error occurred while recording grades: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
         } catch (Exception e) {
+            if (transaction != null && transaction.getStatus().canRollback()) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
@@ -771,28 +801,36 @@ public class Main {
     }
 
     /**
-     * Displays the available courses for students to enroll in.
+     * Views the available courses for students.
+     * Only courses that have not yet started and have available capacity are displayed.
+     * <p>
+     * Steps:
+     * 1. Retrieve all available courses using CourseService.
+     * 2. Display the courses that meet the criteria.
+     * 3. Handle and display any exceptions that occur during the process.
      */
     private static void viewAvailableCourses() { // 2-5
         try {
             System.out.println("View Available Courses");
-            List<Course> courses = courseService.findAllCourses();
-            boolean foundAvailableCourses = false;
-            for (Course course : courses) {
-                if (course.getStartDate().isAfter(LocalDate.now()) && course.getCapacity() > 0) {
-                    System.out.println(course);
-                    foundAvailableCourses = true;
+            List<Course> availableCourses = courseService.findAvailableCourses();
+            if (availableCourses.isEmpty()) {
+                System.out.println("No available courses found.");
+            } else {
+                System.out.println("Available Courses:");
+                for (Course course : availableCourses) {
+                    System.out.println("Course ID: " + course.getId());
+                    System.out.println("Course Name: " + course.getCourseName());
+                    System.out.println("Units: " + course.getUnits());
+                    System.out.println("Capacity: " + course.getCapacity());
+                    System.out.println("Teacher: " + course.getTeacher().getLastName());
+                    System.out.println("Start Date: " + course.getStartDate());
+                    System.out.println("-----");
                 }
             }
-            if (!foundAvailableCourses) {
-                System.out.println("No available courses found.");
-            }
         } catch (CustomException e) {
-            System.out.println("An error occurred while viewing the available courses: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
-            System.out.println("Please try again.");
+            System.out.println("An error occurred while retrieving available courses: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred while viewing the available courses: " + e.getMessage());
-            System.out.println("Please try again.");
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -834,7 +872,6 @@ public class Main {
             System.out.println("Please try again.");
         }
     }
-
 
     /**
      * Teacher login.
@@ -977,7 +1014,6 @@ public class Main {
         }
     }
 
-
     /**
      * Displays the capacities of the courses assigned to the current teacher.
      *
@@ -1074,28 +1110,23 @@ public class Main {
     }
 
     /**
-     * Displays the grades for the logged-in student.
+     * Views the grades for the courses assigned to the current teacher
+     * This method retrieves the teacher ID from the session and calls the viewGrades method
+     * in the TeacherService to display the grades of students in the assigned courses
      *
      * @param scanner the input scanner
      */
-    private static void viewGrades(Scanner scanner) { // 2-4
+    private static void viewGrades(Scanner scanner) {
         try {
             System.out.println("View Grades");
-            System.out.print("Student ID: ");
-            Long studentId = scanner.nextLong();
-            Student student = studentService.findStudentById(studentId);
 
-            if (student == null) {
-                System.out.println("Student not found.");
+            Long teacherId = getCurrentTeacherId();
+            if (teacherId == null) {
+                System.out.println("No teacher is currently logged in.");
                 return;
             }
 
-            List<Enrollment> enrollments = enrollmentService.findAllEnrollments();
-            for (Enrollment enrollment : enrollments) {
-                if (enrollment.getStudent().getId().equals(student.getId())) {
-                    System.out.println(enrollment.getCourse() + ": " + enrollment.getGrade());
-                }
-            }
+            teacherService.viewGrades(teacherId);
         } catch (CustomException e) {
             System.out.println("An error occurred while viewing the grades: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
             System.out.println("Please try again.");
@@ -1113,28 +1144,30 @@ public class Main {
     private static void studentLogin(Scanner scanner) {
         try {
             System.out.println("Student Login");
-            System.out.print("Username (Student Number): ");
+            System.out.print("Username (Student Number, Student number must be 5 digits): ");
             String username = scanner.next();
-            System.out.print("Password (National Code): ");
+            System.out.print("Password (National Code, National code must be 10 digits): ");
             String password = scanner.next();
 
             boolean authenticated = studentService.authenticate(username, password);
             if (authenticated) {
-                Student student = studentService.findByName(username); // بر اساس نام کاربری دانشجو را پیدا می‌کنیم
-                setCurrentStudentId(student.getId()); // تنظیم شناسه دانشجو فعلی
+                Student student = studentService.findByName(username);
+                currentStudentId = student.getId(); // تنظیم متغیر currentStudentId
+                setCurrentStudentId(student.getId());
                 System.out.println("Welcome Student!");
-                studentMenu(scanner); // نمایش منوی دانشجو
+                studentMenu(scanner);
             } else {
                 System.out.println("Invalid username or password. Please try again.");
                 studentLogin(scanner);
             }
         } catch (CustomException e) {
-            System.out.println("An error occurred during authentication: " + e.getMessage() + " (Code: " + e.getErrorCode() + ")");
+            System.out.println("An error occurred during authentication: "
+                    + e.getMessage()
+                    + " (Code: " + e.getErrorCode() + ")");
         } catch (Exception e) {
             System.out.println("An unexpected error occurred during authentication: " + e.getMessage());
         }
     }
-
 
     private static void setCurrentTeacherId(Long teacherId) {
         currentTeacherId = teacherId;

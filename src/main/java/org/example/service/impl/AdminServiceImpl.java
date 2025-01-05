@@ -32,7 +32,6 @@ import java.util.Set;
  */
 public class AdminServiceImpl implements AdminService {
 
-
     private final StudentRepository studentRepository = new StudentRepositoryImpl();
     private final TeacherRepository teacherRepository = new TeacherRepositoryImpl();
     private final AdminRepository adminRepository = new AdminRepositoryImpl();
@@ -170,7 +169,6 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-
     /**
      * Finds a teacher by their name. *
      *
@@ -250,6 +248,11 @@ public class AdminServiceImpl implements AdminService {
     /**
      * Creates a new course.
      *
+     * This method creates a new course in the system. It first checks if a course with the same name already exists,
+     * and if so, throws a CustomException. Then it checks if the teacher associated with the course exists,
+     * and if the teacher does not exist, it throws a CustomException. Finally, it assigns the teacher to the course
+     * and persists the course in the database.
+     *
      * @param course the course to be created
      * @throws CustomException if there is an error while creating the course
      */
@@ -262,6 +265,7 @@ public class AdminServiceImpl implements AdminService {
             transaction = session.beginTransaction();
 
             // بررسی وجود دوره با همین نام
+            System.out.println("Checking for existing course with the same name...");
             Course existingCourse = session.createQuery("FROM Course WHERE courseName = :name", Course.class)
                     .setParameter("name", course.getCourseName())
                     .uniqueResult();
@@ -270,6 +274,7 @@ public class AdminServiceImpl implements AdminService {
             }
 
             // بررسی وجود معلم با نام
+            System.out.println("Checking for existing teacher with the same name...");
             Teacher teacher = session.createQuery("FROM Teacher WHERE lastName = :name", Teacher.class)
                     .setParameter("name", course.getTeacher().getLastName())
                     .uniqueResult();
@@ -281,8 +286,10 @@ public class AdminServiceImpl implements AdminService {
             course.setTeacher(teacher);
             course.setTeacherName(teacher.getLastName());
 
+            System.out.println("Persisting course...");
             session.persist(course);
             transaction.commit();
+            System.out.println("Course created successfully.");
         } catch (CustomException e) {
             if (transaction != null && transaction.getStatus().canRollback()) {
                 transaction.rollback();
@@ -294,6 +301,7 @@ public class AdminServiceImpl implements AdminService {
             if (transaction != null && transaction.getStatus().canRollback()) {
                 transaction.rollback();
             }
+            e.printStackTrace();
             throw new CustomException("Failed to create course", ErrorCode.CREATE_COURSE_FAILED.getCode(), e);
         } finally {
             if (session != null) {

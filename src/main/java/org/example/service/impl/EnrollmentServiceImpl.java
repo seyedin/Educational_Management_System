@@ -22,6 +22,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository = new EnrollmentRepositoryImpl();
 
+
     /**
      * Saves an enrollment entity to the database.
      *
@@ -174,6 +175,24 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             return enrollmentRepository.findEnrollmentsByCourseId(courseId, session);
         } catch (Exception e) {
             throw new CustomException("Failed to retrieve enrollments for course", ErrorCode.RETRIEVE_ENROLLMENTS_FAILED.getCode(), e);
+        }
+    }
+
+    /**
+     * Retrieves the list of enrollments for a specific student.
+     *
+     * @param studentId the ID of the student
+     * @return a list of enrollments for the student
+     * @throws CustomException if there is an error while retrieving the enrollments
+     */
+    @Override
+    public List<Enrollment> findEnrollmentsByStudentId(Long studentId) throws CustomException {
+        try (Session session = SessionFactoryInstance.sessionFactory.openSession()) {
+            return session.createQuery("FROM Enrollment WHERE student.id = :studentId", Enrollment.class)
+                    .setParameter("studentId", studentId)
+                    .list();
+        } catch (Exception e) {
+            throw new CustomException("Failed to retrieve enrollments for student", ErrorCode.RETRIEVE_ENROLLMENTS_FAILED.getCode(), e);
         }
     }
 }
