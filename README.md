@@ -8,7 +8,7 @@ The system allows for the registration, enrollment, and management of courses an
 ## Features
 
 ### Admin
-- Register Students
+- Register Students.
 - View List of Students
 - Register Teachers
 - View List of Teachers
